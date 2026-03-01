@@ -1,0 +1,99 @@
+name: multiclient-CICD
+
+on:
+  push:
+    branches:
+      - dev
+      - stage
+      - main
+
+env:
+  NEST_IMAGE: harshadeep0034/nest-app
+  FAST_IMAGE: harshadeep0034/fastapi-app
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+        
+      - name: set commit sha
+        run: echo "TAG=${GITHUB_SHA}" >> $GIT_ENV
+
+      - name: docker login
+        run: echo "${{secrets.DOCKER_PASS}}" | dokcer login -u "${{secrets.DOCKER_USER}}" --password-stdin
+
+      - name: build nest
+        run: docker build -t $NEST_IMAGE:$TAG ./devops-sample-fast
+
+      - name: push nest
+        run: docker push $NEST_IMAGE:$TAG
+
+      - name: build fastapi-app
+        run: docker build -t $FAST_IMAGE:$TAG ./devops-sample-nest
+
+      - name: push fastapi-app
+        run: docker push $FAST_IMAGE:$TAG
+  
+  deploy-dev:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: copy private key 
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{secrets.DEV_SERVER}} >> ~/.ssh/known_hosts   
+
+      - name: deploy to dev to dev server
+        run: |
+          ssh ${{secrets.DEV_USER}}@${{secrets.DEV_SERVER}} "
+          docker service update --image $NEST_IMAGE:${{github.sha}} multiclient-stack_nest-app &&
+          docker service update --image $FAST_IMAGE:${{github.sha}} multiclient-stack_fastapi-app
+          "
+  deploy-stage:  
+    if: github.ref == 'refs/heads/stage'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: copy private key to stage server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{secrets.STAGE_SERVER}} >> ~/.ssh/known_hosts
+
+      - name: deploy to stage
+        run: |
+          ssh ${{secrets.STAGE_USER}}@${{secrets.STAGE_SERVER}} "
+          docker service update --image $NEST_IMAGE:${{github.sha}} multiclient-stack_nest-app &&
+          docker service update --image $FAST_IMAGE:${{github.sha}} multiclient-stack_fastapi-app
+          "
+  
+  deploy-prod:
+    if: github.ref == 'refs/heads/prod'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: copy private key to prod-server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{secrets.PROD_SERVER}} >> ~/.ssh/known_hosts
+
+      - name: deploy to prod 
+        run: |
+          ssh ${{secrets.PROD_USER}}@${{secrets.PROD_SERVER}} "
+          docker service update --image $NEST_IMAGE:${{github.sha}} multiclient-stack_nest-app &&
+          docker service update --image $FAST_IMAGE:${{github.sha}} multiclient-stack_fastapi-app
+          "
+    
+       
+    
+  
