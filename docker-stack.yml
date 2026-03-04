@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - "82:80"
+    networks:
+      - app-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+  nest-app:
+    image: harshadeep0034/nest-app:v1
+    networks:
+      - app-network
+    volumes:
+      - node-data:/app/logs
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.role != manager
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.nest.rule=Host(`client-a.example.com`)
+        - traefik.http.services.nest.loadbalancer.server.port=3000
+
+  fastapi-app:
+    image: harshadeep0034/fastapi-app:v1
+    networks:
+      - app-network
+    volumes:
+      - python-data:/app/data
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.role != manager
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.fast.rule=Host(`client-b.example.com`)
+        - traefik.http.services.fast.loadbalancer.server.port=8000
+
+networks:
+  app-network:
+    driver: overlay
+
+volumes:
+  node-data:
+  python-data:
