@@ -231,7 +231,7 @@ User → Traefik → Overlay Network → Service → Container
 Display in README:
 ## Screenshots
 
-![Swarm Setup](Screenshot-1-join)
+![Swarm Setup](screenshots/Screenshot-1-join.png)
 ![Services](Screenshot-6-docker-service-ls)
 
 
