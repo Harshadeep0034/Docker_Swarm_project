@@ -232,7 +232,7 @@ Display in README:
 ## Screenshots
 
 ![Swarm Setup](screenshots/Screenshot-1-join.png)
-![Services](Screenshot-6-docker-service-ls)
+![Services](screenshots/Screenshot-6-docker-service-ls.png)
 
 
 🧠 Key Learnings
