@@ -1,4 +1,5 @@
 📘 Docker Swarm Multi-Service Deployment (Node.js + FastAPI)
+
 🚀 Project Overview
 
 This project demonstrates a multi-service architecture deployed using Docker Swarm, including:
@@ -23,14 +24,14 @@ Overlay Network → Enables communication across nodes
   
 2️⃣ Install Docker
 
-  sudo apt-get update
-  sudo apt-get install docker.io -y
-  sudo systemctl enable docker
-  sudo systemctl status docker
+    sudo apt-get update
+    sudo apt-get install docker.io -y
+    sudo systemctl enable docker
+    sudo systemctl status docker
   
 3️⃣ Initialize Swarm (Manager Node)
 
-  docker swarm init
+      docker swarm init
 
 👉 Open ports:
 
@@ -41,7 +42,7 @@ Overlay Network → Enables communication across nodes
   
 4️⃣ Join Worker Node
 
-  docker swarm join --token <TOKEN>
+    docker swarm join --token <TOKEN>
 
 Check nodes:
 
@@ -110,15 +111,15 @@ Check nodes:
   
 Tag Images
 
-  docker tag fastapi-app:v1 <dockerhub>/fastapi-app:v1
+    docker tag fastapi-app:v1 <dockerhub>/fastapi-app:v1
   
-  docker tag nest-app:v1 <dockerhub>/nest-app:v1
+    docker tag nest-app:v1 <dockerhub>/nest-app:v1
   
 Push to Docker Hub
   
-  docker push <dockerhub>/fastapi-app:v1
+    docker push <dockerhub>/fastapi-app:v1
   
-  docker push <dockerhub>/nest-app:v1
+    docker push <dockerhub>/nest-app:v1
 
   
 📄 Docker Stack Deployment
@@ -174,24 +175,24 @@ Push to Docker Hub
         
 🚀 Deploy Stack
 
-  docker stack deploy -c docker-stack.yml multiclient-stack
+    docker stack deploy -c docker-stack.yml multiclient-stack
 
 Check services:
 
-  docker service ls
+    docker service ls
 
-  docker stack services multiclient-stack
+    docker stack services multiclient-stack
 
 
 ⚡ Scaling & Updates
 
 🔹 Scale Service
 
-  docker service scale multiclient-stack_fastapi-app=5
+    docker service scale multiclient-stack_fastapi-app=5
   
 🔹 Rolling Update
 
-  docker service update --image <dockerhub>/fastapi-app:v2 multiclient-stack_fastapi-app
+    docker service update --image <dockerhub>/fastapi-app:v2 multiclient-stack_fastapi-app
 
 
   
@@ -207,7 +208,7 @@ Automatic load balancing
 
 🔄 Rollback
 
-  docker service rollback multiclient-stack_fastapi-app
+    docker service rollback multiclient-stack_fastapi-app
 
   
 🔀 Traefik (Reverse Proxy)
