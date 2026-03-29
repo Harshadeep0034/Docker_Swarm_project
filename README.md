@@ -46,7 +46,7 @@ Overlay Network → Enables communication across nodes
 
 Check nodes:
 
-  docker node ls
+    docker node ls
   
 📦 Application Setup
 
@@ -105,8 +105,9 @@ Check nodes:
   .env
   
 🐳 Build & Push Images
-  docker build -t nest-app .
-  docker build -t fastapi-app .
+
+    docker build -t nest-app .
+    docker build -t fastapi-app .
 
   
 Tag Images
@@ -219,6 +220,7 @@ Auto service discovery
 Dynamic routing
 No manual config reload
 Built for Docker & Swarm
+
 Traffic Flow:
 User → Traefik → Overlay Network → Service → Container
 
